@@ -201,7 +201,7 @@ void vTask_HandleInterrupt()
 				uint32_t old_dhtInterval = dhtInterval;
 				dhtInterval = (uint32_t)atoi((const char*)buffer);
 
-				if (dhtInterval > 1500 && dhtInterval < 10000)
+				if (dhtInterval >= 1500 && dhtInterval < 10000)
 				{
 					printf("Change DHT11 Period from %d to %d\r\n\n", old_dhtInterval, dhtInterval);
 				}
@@ -220,6 +220,8 @@ void vTask_HandleInterrupt()
 			printf("Error Command Syntax\r\n\n");
 			break;
 	}
+
+	count = 0;
 
 	NVIC_EnableIRQ(USART1_IRQn);
 
@@ -321,7 +323,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	 if(htim->Instance == htim1.Instance)
 	 {
-		 if (count == dhtInterval)
+		 if (count % dhtInterval == 0)
 		 {
 			 Queue_PushRear(&queue, vTask_ReadData);
 			 Queue_PushRear(&queue, vTask_Display);
@@ -373,9 +375,6 @@ int main(void)
   MX_I2C2_Init();
   MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
-
-  P = 1000;
-  t0 = uwTick;
 
   printf("Start\r\n\n");
 
